@@ -22,7 +22,7 @@ func ConnectDatabase() {
 
 	fmt.Println("Database terkoneksi")
 
-	// Auto migrate tabel
+	// // Auto migrate tabel
 	DB.AutoMigrate(&models.SensorValue{}, &models.SensorData{})
 }
 
