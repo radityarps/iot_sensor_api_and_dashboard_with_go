@@ -22,7 +22,7 @@ func GetStatusSensor(c *gin.Context) {
     var response []gin.H
     for _, sensor := range sensors {
         status := ""
-        if sensor.Name == "LDR" {
+        if sensor.Name == "ldr" {
             switch {
             case sensor.Value > 1500:
                 status = "Terang"
@@ -32,6 +32,19 @@ func GetStatusSensor(c *gin.Context) {
                 status = "Redup"
             default:
                 status = "Gelap"
+            }
+        } else if sensor.Name == "dht_kelembapan" {
+            switch {
+            case sensor.Value > 80:
+                status = "Sangat Lembap"
+            case sensor.Value > 60:
+                status = "Lembap"
+            case sensor.Value > 40:
+                status = "Normal"
+            case sensor.Value > 20:
+                status = "Kering"
+            default:
+                status = "Sangat Kering"
             }
         }
 
@@ -53,8 +66,8 @@ func GetStatusSensor(c *gin.Context) {
             "sensor_data": sensorDataList, // Tambahkan sensor data
         }
 
-        // Tambahkan status hanya jika sensor adalah LDR
-        if sensor.Name == "LDR" {
+        // Tambahkan status jika sensor adalah ldr atau dht_kelembapan
+        if sensor.Name == "ldr" || sensor.Name == "dht_kelembapan" {
             data["status"] = status
         }
 

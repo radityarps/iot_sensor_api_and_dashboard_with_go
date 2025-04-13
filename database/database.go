@@ -13,7 +13,7 @@ import (
 var DB *gorm.DB
 
 func ConnectDatabase() {
-	dsn := "root:@tcp(127.0.0.1:3306)/iot_pertemuan_3?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:@tcp(127.0.0.1:3306)/iot_bab4?charset=utf8mb4&parseTime=True&loc=Local"
 	var err error
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
