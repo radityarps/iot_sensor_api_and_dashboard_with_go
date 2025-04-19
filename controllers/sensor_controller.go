@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"iot_api_with_go/database"
 	"iot_api_with_go/models"
 	"net/http"
@@ -113,3 +114,73 @@ func AddDataSensor(c *gin.Context) {
 	})
 }
 
+func UpdateAllStatusSensor(c *gin.Context) {
+	var sensors []models.SensorValue
+
+	// Bind JSON array to sensors slice
+	if err := c.ShouldBindJSON(&sensors); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Loop through each sensor and update it
+	for _, sensor := range sensors {
+		var existingSensor models.SensorValue
+		if err := database.DB.First(&existingSensor, sensor.ID).Error; err != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Sensor with ID " + fmt.Sprint(sensor.ID) + " not found"})
+			return
+		}
+
+		// Update the value or other fields as needed
+		existingSensor.Value = sensor.Value
+		database.DB.Save(&existingSensor)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "All sensors updated successfully"})
+}
+
+
+func GetOnlyValueSensor(c *gin.Context) {
+    var sensors []models.SensorValue
+
+    // Ambil data sensor dari database + Preload SensorData
+    if err := database.GetDB().Preload("SensorData").Find(&sensors).Error; err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengambil data"})
+        return
+    }
+
+    // Menambahkan status berdasarkan nilai sensor
+    var response []gin.H
+    for _, sensor := range sensors {
+        status := ""
+        if sensor.Name == "LDR" {
+            switch {
+            case sensor.Value > 1500:
+                status = "Terang"
+            case sensor.Value > 1000:
+                status = "Cerah"
+            case sensor.Value > 500:
+                status = "Redup"
+            default:
+                status = "Gelap"
+            }
+        }
+
+        // Tambahkan response utama
+        data := gin.H{
+            "id":          sensor.ID,
+            "name":        sensor.Name,
+            "value":       sensor.Value,
+        }
+
+        // Tambahkan status hanya jika sensor adalah LDR
+        if sensor.Name == "LDR" {
+            data["status"] = status
+        }
+
+        response = append(response, data)
+    }
+
+    // Kirim response dalam format JSON
+    c.JSON(http.StatusOK, response)
+}

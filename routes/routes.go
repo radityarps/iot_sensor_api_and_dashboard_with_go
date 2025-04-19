@@ -10,4 +10,6 @@ func SensorStatusRoutes(router *gin.Engine) {
 	router.GET("/", controllers.GetStatusSensor)
 	router.PUT("/sensor/:id", controllers.UpdateStatusSensor)
 	router.POST("/sensor", controllers.AddDataSensor)
+	router.PUT("/sensor/update-all", controllers.UpdateAllStatusSensor)
+	router.GET("/value-sensor", controllers.GetOnlyValueSensor)
 }
